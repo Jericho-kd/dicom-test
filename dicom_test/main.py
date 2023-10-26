@@ -1,7 +1,8 @@
+import pydicom
 from pydicom.dataset import Dataset
 from pynetdicom import debug_logger
 from pynetdicom.ae import ApplicationEntity as AE
-from pynetdicom.presentation import QueryRetrievePresentationContexts
+from pynetdicom.presentation import QueryRetrievePresentationContexts, AllStoragePresentationContexts
 from pynetdicom.sop_class import uid_to_sop_class
 
 
@@ -12,14 +13,25 @@ def cfind_query() -> list[Dataset]:
     images: list[Dataset] = []
     dataset = Dataset()
 
-    dataset.SOPClassesInStudy = ''
-    dataset.PatientID = 'd14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f'
-    dataset.StudyInstanceUID = ''
-    dataset.QueryRetrieveLevel = 'STUDY'
-    # identifier.QueryRetrieveLevel = 'PATIENT'
-    # identifier.PatientName = 'Anonymous'
-    # identifier.PatientBirthDate = "19610709"
-    # identifier.Modality = 'MG'
+    # parameters for PATIENT level
+    # dataset.PatientID = ''
+    # dataset.PatientBirthDate = ''
+    # dataset.PatientSex = ''
+    # dataset.QueryRetrieveLevel = 'PATIENT'
+
+    # parameters for STUDY level
+    # dataset.StudyDescription = ''
+    # dataset.StudyDate = ''
+    # dataset.StudyInstanceUID = ''
+    # dataset.QueryRetrieveLevel = 'STUDY'
+
+    # parameters for SERIES level
+    dataset.SeriesInstanceUID = ''
+    dataset.BodyPartExamined = ''
+    dataset.Modality = 'MG'
+    dataset.SeriesDescription = ''
+    dataset.QueryRetrieveLevel = 'SERIES'
+
     print(dataset)
 
     ae = AE()
@@ -29,7 +41,7 @@ def cfind_query() -> list[Dataset]:
 
     if assoc.is_established:
         for (status, ds) in assoc.send_c_find(dataset, "1.2.840.10008.5.1.4.1.2.2.1"):
-            if status:
+            if status.Status == 0xFF00:
                 print('C-FIND query status: 0x{0:04X}'.format(status.Status))
             else:
                 print('Connection timed out, was aborted or received invalid response')
@@ -39,5 +51,28 @@ def cfind_query() -> list[Dataset]:
     return images
 
 
+def load_images():
+    ae = AE()
+    ae.requested_contexts = AllStoragePresentationContexts[:127]
+
+    assoc = ae.associate('localhost', 4242)
+
+    if assoc.is_established:
+        study_instance_uid = "1.2.276.0.7230010.3.1.2.3252257021.10392.1690202165.1214"
+
+        dataset = Dataset()
+        dataset.QueryRetrieveLevel = 'STUDY'
+        dataset.StudyInstanceUID = study_instance_uid
+
+        for (status, ds) in assoc.send_c_get(dataset, "1.2.840.10008.5.1.4.1.1.1.2.1"):
+            if status:
+                print('C-GET query status: 0x{0:04x}'.format(status.Status))
+            else:
+                print('Connection timed out, was aborted or received invalid response')
+
+        assoc.release()
+
+
 if __name__ == '__main__':
-    cfind_query()
+    # cfind_query()
+    load_images()

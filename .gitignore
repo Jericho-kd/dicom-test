@@ -162,3 +162,4 @@ cython_debug/
 # file with notes
 notes.txt
 orthanc_example.json
+test.py
