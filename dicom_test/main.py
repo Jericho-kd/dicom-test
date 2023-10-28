@@ -1,4 +1,4 @@
-import pydicom
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pynetdicom import debug_logger
 from pynetdicom.ae import ApplicationEntity as AE
@@ -14,15 +14,15 @@ def cfind_query() -> list[Dataset]:
     dataset = Dataset()
 
     # parameters for PATIENT level
-    # dataset.PatientID = ''
-    # dataset.PatientBirthDate = ''
-    # dataset.PatientSex = ''
+    dataset.PatientID = ''
+    dataset.PatientBirthDate = ''
+    dataset.PatientSex = ''
     # dataset.QueryRetrieveLevel = 'PATIENT'
 
     # parameters for STUDY level
-    # dataset.StudyDescription = ''
-    # dataset.StudyDate = ''
-    # dataset.StudyInstanceUID = ''
+    dataset.StudyDescription = ''
+    dataset.StudyDate = ''
+    dataset.StudyInstanceUID = ''
     # dataset.QueryRetrieveLevel = 'STUDY'
 
     # parameters for SERIES level
@@ -30,17 +30,21 @@ def cfind_query() -> list[Dataset]:
     dataset.BodyPartExamined = ''
     dataset.Modality = 'MG'
     dataset.SeriesDescription = ''
-    dataset.QueryRetrieveLevel = 'SERIES'
+    # dataset.QueryRetrieveLevel = 'SERIES'
 
-    print(dataset)
+    # dataset.ImageDescription = ''
+    dataset.SOPInstanceUID = ''
+    dataset.SOPClassUID = ''
+    dataset.QueryRetrieveLevel = 'IMAGE'
 
-    ae = AE()
+
+    ae = AE(ae_title="PYNETDICOM")
     ae.requested_contexts = QueryRetrievePresentationContexts
 
-    assoc = ae.associate('localhost', 4242)
+    assoc = ae.associate('', 4242, ae_title="ORTHANC")
 
     if assoc.is_established:
-        for (status, ds) in assoc.send_c_find(dataset, "1.2.840.10008.5.1.4.1.2.2.1"):
+        for (status, ds) in assoc.send_c_find(dataset, "1.2.840.10008.5.1.4.1.2.1.1"):
             if status.Status == 0xFF00:
                 print('C-FIND query status: 0x{0:04X}'.format(status.Status))
             else:
@@ -52,19 +56,21 @@ def cfind_query() -> list[Dataset]:
 
 
 def load_images():
-    ae = AE()
-    ae.requested_contexts = AllStoragePresentationContexts[:127]
+    dataset = Dataset()
+    dataset.StudyInstanceUID = '1.2.276.0.7230010.3.1.2.3252257021.10392.1690202164.1133'
+    dataset.QueryRetrieveLevel = 'STUDY'
 
-    assoc = ae.associate('localhost', 4242)
+    # dataset.SOPInstanceUID = '1.2.276.0.7230010.3.1.4.3252257021.10392.1690202164.1138'
+    # dataset.QueryRetrieveLevel = 'IMAGE'
+
+    ae = AE(ae_title="PYNETDICOM")
+    ae.requested_contexts = AllStoragePresentationContexts[:50]
+    ae.add_requested_context("1.2.840.10008.5.1.4.1.2.1.3")
+
+    assoc = ae.associate('localhost', 4242, ae_title="ORTHANC")
 
     if assoc.is_established:
-        study_instance_uid = "1.2.276.0.7230010.3.1.2.3252257021.10392.1690202165.1214"
-
-        dataset = Dataset()
-        dataset.QueryRetrieveLevel = 'STUDY'
-        dataset.StudyInstanceUID = study_instance_uid
-
-        for (status, ds) in assoc.send_c_get(dataset, "1.2.840.10008.5.1.4.1.1.1.2.1"):
+        for (status, ds) in assoc.send_c_get(dataset, "1.2.840.10008.5.1.4.1.2.1.3"):
             if status:
                 print('C-GET query status: 0x{0:04x}'.format(status.Status))
             else:
@@ -73,6 +79,7 @@ def load_images():
         assoc.release()
 
 
+
 if __name__ == '__main__':
-    # cfind_query()
-    load_images()
+    cfind_query()
+    # load_images()
