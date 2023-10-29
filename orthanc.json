@@ -370,8 +370,8 @@
      * and the third one is the TCP port number corresponding
      * to the DICOM protocol on the remote modality (usually 104).
      **/
-    "PYNETDICOM" : [ "PYNETDICOM", "172.18.0.1", 2000  ],
-    "SCP_STORAGE" : [ "SCP_STORAGE", "127.0.0.1", 11112 ]
+    "PYNETDICOM" : [ "PYNETDICOM", "127.0.0.1", 2000  ],
+    "SCP_STORAGE" : [ "SCP_STORAGE", "172.18.0.1", 11112 ]
 
     /**
      * A fourth parameter is available to enable patches for

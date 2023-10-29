@@ -95,6 +95,21 @@ docs = ["numpydoc", "sphinx", "sphinx-copybutton", "sphinx-issues", "sphinx-rtd-
 tests = ["pyfakefs", "pytest", "sqlalchemy"]
 
 [[package]]
+name = "python-dotenv"
+version = "1.0.0"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "python-dotenv-1.0.0.tar.gz", hash = "sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba"},
+    {file = "python_dotenv-1.0.0-py3-none-any.whl", hash = "sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -121,4 +136,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5e5c5e4fb8e481af75639cd1002f0ddb78b1ecf356a80367bcc4fc841d88c978"
+content-hash = "3699630bac0fe63582c1ea6ed1ab43d4b2edb8254e93626fa2a757e3a706206f"
