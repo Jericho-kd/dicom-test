@@ -1,0 +1,4 @@
+pydicom == 2.4.3
+pynetdicom == 2.0.2
+python-dotenv == 1.0.0
+numpy == 1.26.1
